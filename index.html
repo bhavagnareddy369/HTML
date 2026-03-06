@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KLU – Campus Asset Recovery System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-left">
+    <div class="login-left-content">
+      <div class="login-brand">
+        <div class="login-brand-icon">🎓</div>
+        <div class="login-brand-text">
+          <h1>KL University</h1>
+          <p>Campus Asset Recovery</p>
+        </div>
+      </div>
+      <div class="login-headline">
+        <h2>Recover what matters, fast.</h2>
+        <p>A proof-based system for lost and found items across campus.</p>
+      </div>
+      <div class="login-features">
+        <div class="login-feature">
+          <div class="login-feature-icon" style="background:rgba(196,18,48,0.25)">📸</div>
+          <p><strong>Photo evidence</strong> — attach images to verify ownership</p>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-icon" style="background:rgba(14,148,136,0.25)">🎓</div>
+          <p><strong>Student ID verification</strong> — identity confirmed securely</p>
+        </div>
+        <div class="login-feature">
+          <div class="login-feature-icon" style="background:rgba(234,108,0,0.25)">✅</div>
+          <p><strong>Proof score system</strong> — transparent claim approval</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="login-form-wrap">
+      <h3>Sign in</h3>
+      <p>Access your campus portal</p>
+      <div class="role-tabs">
+        <button class="role-tab active" onclick="setRole('student',this)">🎓 Student</button>
+        <button class="role-tab" onclick="setRole('admin',this)">🔐 Security</button>
+        <button class="role-tab" onclick="setRole('authority',this)">🏛️ Authority</button>
+      </div>
+      <div class="form-field">
+        <label>Student / Staff ID</label>
+        <input type="text" id="login-id" placeholder="e.g. STU2024001"/>
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••"/>
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+      <div class="demo-creds">
+        <div class="demo-creds-title">Demo Credentials</div>
+        <table class="demo-table">
+          <tr><td>🎓 Student</td><td class="cred-id">STU2024001</td><td class="cred-pass">student123</td></tr>
+          <tr><td>🔐 Security</td><td class="cred-id">SEC001</td><td class="cred-pass">security@klu</td></tr>
+          <tr><td>🏛️ Authority</td><td class="cred-id">AUTH001</td><td class="cred-pass">authority@klu</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand-badge">KLU</div>
+      <div class="sidebar-logo-text">
+        <span>KL University</span>
+        <strong>Asset Recovery</strong>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="sb-avatar">A</div>
+      <div class="user-info">
+        <h4 id="sb-name">User</h4>
+        <span id="sb-role">Role</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">← Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="page active" id="page-dashboard">
+      <div class="page-header page-header-row">
+        <div>
+          <h1 id="dash-greeting">Dashboard</h1>
+          <p>Here's what's happening on campus today</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" onclick="showPage('page-search')">🔍 Search</button>
+          <button class="btn btn-red" onclick="showPage('page-report')">+ Report Item</button>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon" style="background:#FFEBEE">📦</div><div><div class="stat-num" id="stat-lost">0</div><div class="stat-label">Lost Items</div><div class="stat-change up">+3 this week</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9">✅</div><div><div class="stat-num" id="stat-found">0</div><div class="stat-label">Found Items</div><div class="stat-change up">+5 this week</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#E3F2FD">🔗</div><div><div class="stat-num" id="stat-matches">9</div><div class="stat-label">Matches</div><div class="stat-change up">+2 today</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:#FFF3E0">⏳</div><div><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pending Claims</div><div class="stat-change down">Needs review</div></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Reports</span><a class="card-link" onclick="showPage('page-search')">View all →</a></div>
+          <div id="recent-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Weekly Activity</span></div>
+          <div class="card-pad">
+            <div class="bar-chart" id="mini-chart"></div>
+            <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px">Claims per day — last 7 days</p>
+            <div class="divider"></div>
+            <div class="timeline" id="activity-timeline"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="proof-panel" style="display:none">
+        <div class="card-header"><span class="card-title">Pending Verification Queue</span><a class="card-link" onclick="showPage('page-verify')">Manage →</a></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Claimant</th><th>Proof Score</th><th>Submitted</th><th>Action</th></tr></thead>
+            <tbody id="verify-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-report">
+      <div class="page-header"><h1>Report an Item</h1><p>Submit a lost or found item with supporting evidence</p></div>
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="steps-row">
+          <div class="step-item active" id="step1"><div class="step-num">1</div><div class="step-label">Item Details</div></div>
+          <div class="step-item" id="step2"><div class="step-num">2</div><div class="step-label">Upload Proof</div></div>
+          <div class="step-item" id="step3"><div class="step-num">3</div><div class="step-label">Review and Submit</div></div>
+        </div>
+      </div>
+      <div class="card card-pad">
+        <div id="report-step-1">
+          <div class="form-section">
+            <div class="form-section-title">Item Type</div>
+            <div style="display:flex;gap:10px;margin-bottom:20px">
+              <label style="flex:1;cursor:pointer"><input type="radio" name="item-type" value="lost" checked onchange="updateReportType(this.value)" style="display:none"><div class="quiz-opt selected" id="type-lost" style="justify-content:center;padding:14px"><span>📍</span><span style="font-weight:700">Lost Item</span></div></label>
+              <label style="flex:1;cursor:pointer"><input type="radio" name="item-type" value="found" onchange="updateReportType(this.value)" style="display:none"><div class="quiz-opt" id="type-found" style="justify-content:center;padding:14px"><span>📦</span><span style="font-weight:700">Found Item</span></div></label>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-title">Basic Information</div>
+            <div class="form-row">
+              <div class="form-field"><label>Item Name</label><input type="text" id="r-name" placeholder="e.g. Black Dell Laptop"/></div>
+              <div class="form-field"><label>Category</label>
+                <select id="r-category">
+                  <option value="">Select category</option>
+                  <option>Electronics</option><option>Clothing</option><option>Accessories / Jewelry</option>
+                  <option>Books / Stationery</option><option>ID / Documents</option><option>Keys</option>
+                  <option>Bag / Wallet</option><option>Sports Equipment</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field"><label>Date</label><input type="date" id="r-date"/></div>
+              <div class="form-field"><label>Location</label>
+                <select id="r-location">
+                  <option value="">Select location</option>
+                  <optgroup label="🏪 Basement (B Floor)">
+                    <option>Canteen – B Floor</option>
+                    <option>Boys Common Room – B Floor</option>
+                    <option>Girls Common Room – B Floor</option>
+                  </optgroup>
+                  <optgroup label="🏫 Ground Floor">
+                    <option>Room 001 – Ground Floor</option><option>Room 002 – Ground Floor</option>
+                    <option>Room 003 – Ground Floor</option><option>Room 004 – Ground Floor</option>
+                    <option>Room 005 – Ground Floor</option><option>Room 006 – Ground Floor</option>
+                    <option>Room 007 – Ground Floor</option><option>Lab 008 – Ground Floor</option>
+                    <option>Faculty Room – Ground Floor</option>
+                  </optgroup>
+                  <optgroup label="🏫 1st Floor">
+                    <option>Room 101 – 1st Floor</option><option>Room 102 – 1st Floor</option>
+                    <option>Room 103 – 1st Floor</option><option>Room 104 – 1st Floor</option>
+                    <option>Room 105 – 1st Floor</option><option>Room 106 – 1st Floor</option>
+                    <option>Room 107 – 1st Floor</option><option>Lab 108 – 1st Floor</option>
+                    <option>Faculty Room – 1st Floor</option>
+                  </optgroup>
+                  <optgroup label="📚 2nd Floor">
+                    <option>Room 201 – 2nd Floor</option><option>Room 202 – 2nd Floor</option>
+                    <option>Room 203 – 2nd Floor</option><option>Room 204 – 2nd Floor</option>
+                    <option>Room 205 – 2nd Floor</option><option>Room 206 – 2nd Floor</option>
+                    <option>Room 207 – 2nd Floor</option><option>Lab 208 – 2nd Floor</option>
+                    <option>Library – 2nd Floor</option><option>Faculty Room – 2nd Floor</option>
+                  </optgroup>
+                  <optgroup label="🎭 3rd Floor">
+                    <option>Room 301 – 3rd Floor</option><option>Room 302 – 3rd Floor</option>
+                    <option>Room 303 – 3rd Floor</option><option>Room 304 – 3rd Floor</option>
+                    <option>Room 305 – 3rd Floor</option><option>Room 306 – 3rd Floor</option>
+                    <option>Room 307 – 3rd Floor</option><option>Auditorium – 3rd Floor</option>
+                    <option>Faculty Room – 3rd Floor</option>
+                  </optgroup>
+                  <optgroup label="🎭 4th Floor">
+                    <option>Room 401 – 4th Floor</option><option>Room 402 – 4th Floor</option>
+                    <option>Room 403 – 4th Floor</option><option>Room 404 – 4th Floor</option>
+                    <option>Room 405 – 4th Floor</option><option>Room 406 – 4th Floor</option>
+                    <option>Room 407 – 4th Floor</option><option>Auditorium – 4th Floor</option>
+                    <option>Faculty Room – 4th Floor</option>
+                  </optgroup>
+                  <option>Other / Unknown</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field"><label>Description</label><textarea id="r-desc" placeholder="Colour, brand, size, unique markings, condition..."></textarea></div>
+            <div class="form-field"><label>Unique Identifiers</label><input type="text" id="r-uid" placeholder="Serial no., engraving, stickers, etc."/></div>
+          </div>
+          <div style="text-align:right"><button class="btn btn-red" onclick="reportNext(2)">Next →</button></div>
+        </div>
+
+        <div id="report-step-2" style="display:none">
+          <div class="form-section">
+            <div class="form-section-title">Photo Evidence</div>
+            <div class="alert alert-info">📷 Clear photos significantly improve recovery chances.</div>
+            <div class="upload-area" onclick="triggerUpload('photo-upload')">
+              <div class="upload-icon">📷</div>
+              <p>Drag and drop or <span class="upload-link">browse files</span></p>
+              <p style="font-size:11px;margin-top:3px;color:var(--text3)">JPG, PNG up to 10MB</p>
+              <input type="file" id="photo-upload" multiple accept="image/*" style="display:none" onchange="previewPhotos(this)"/>
+            </div>
+            <div id="photo-previews" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-title">Student ID Verification</div>
+            <div class="alert alert-warn">🎓 Required to validate your identity. Kept confidential.</div>
+            <div class="form-row">
+              <div class="form-field"><label>Student ID</label><input type="text" id="r-sid" placeholder="e.g. STU2024001"/></div>
+              <div class="form-field"><label>Full Name</label><input type="text" id="r-sname" placeholder="As per ID card"/></div>
+            </div>
+            <div class="form-field"><label>Upload ID Card</label>
+              <div class="upload-area" onclick="triggerUpload('id-upload')" style="padding:16px">
+                <div style="font-size:22px">🪪</div>
+                <p style="font-size:13px">Click to upload ID card</p>
+                <input type="file" id="id-upload" accept="image/*" style="display:none" onchange="handleIdUpload(this)"/>
+              </div>
+              <div id="id-preview"></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <button class="btn btn-outline" onclick="reportNext(1)">← Back</button>
+            <button class="btn btn-red" onclick="reportNext(3)">Next →</button>
+          </div>
+        </div>
+
+        <div id="report-step-3" style="display:none">
+          <div class="form-section">
+            <div class="form-section-title">Review Your Report</div>
+            <div id="review-content" style="background:var(--surface2);border-radius:var(--radius-sm);padding:18px;border:1px solid var(--border);margin-bottom:14px"></div>
+            <div class="alert alert-warn">By submitting you confirm all information is accurate. False reports may result in disciplinary action.</div>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <button class="btn btn-outline" onclick="reportNext(2)">← Back</button>
+            <button class="btn btn-green-s" onclick="submitReport()">✅ Submit Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-search">
+      <div class="page-header"><h1>Search Items</h1><p>Browse all reported lost and found items</p></div>
+      <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" placeholder="Search by name, category, location..." id="search-input" oninput="renderSearch()"/></div>
+      <div class="filters-row">
+        <select class="filter-select" id="filter-status" onchange="renderSearch()"><option value="">All Status</option><option value="open">Open</option><option value="pending">Pending</option><option value="verified">Verified</option><option value="claimed">Claimed</option></select>
+        <select class="filter-select" id="filter-type" onchange="renderSearch()"><option value="">Lost and Found</option><option value="lost">Lost Only</option><option value="found">Found Only</option></select>
+      </div>
+      <div id="search-results" class="grid-3"></div>
+    </div>
+
+    <div class="page" id="page-my-reports">
+      <div class="page-header"><h1>My Reports</h1><p>Items you have reported and their status</p></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Item</th><th>Type</th><th>Date</th><th>Location</th><th>Status</th><th>Proof Score</th><th></th></tr></thead><tbody id="my-reports-body"></tbody></table></div></div>
+    </div>
+
+    <div class="page" id="page-claim">
+      <div class="page-header"><h1>Claim an Item</h1><p>Prove ownership through verification</p></div>
+      <div class="grid-2">
+        <div>
+          <div class="card card-pad" style="margin-bottom:14px" id="claim-item-detail"></div>
+          <div class="card card-pad">
+            <div style="font-size:14px;font-weight:700;margin-bottom:14px">Verification Steps</div>
+            <div class="timeline">
+              <div class="tl-item"><div class="tl-dot done">✓</div><div class="tl-content"><h4>Student ID Verified</h4><p>Identity confirmed</p></div></div>
+              <div class="tl-item"><div class="tl-dot pend">⏳</div><div class="tl-content"><h4>Description Quiz</h4><p>Answer questions about the item</p></div></div>
+              <div class="tl-item"><div class="tl-dot">📋</div><div class="tl-content"><h4>Admin Review</h4><p>Security staff confirms claim</p></div></div>
+              <div class="tl-item"><div class="tl-dot">🏛️</div><div class="tl-content"><h4>Authority Approval</h4><p>Final sign-off</p></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card card-pad">
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">Ownership Verification Quiz</div>
+          <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Answer these questions to prove you are the owner.</p>
+          <div id="quiz-container"></div>
+          <button class="btn btn-red btn-block" style="margin-top:14px" onclick="submitQuiz()">Submit Answers →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-verify">
+      <div class="page-header"><h1>Verification Queue</h1><p>Review and approve pending claims</p></div>
+      <div class="card"><div class="table-wrap"><table><thead><tr><th>Item</th><th>Claimant</th><th>ID Verified</th><th>Quiz Score</th><th>Photo Match</th><th>Total Proof</th><th>Actions</th></tr></thead><tbody id="admin-verify-body"></tbody></table></div></div>
+    </div>
+
+    <div class="page" id="page-matches">
+      <div class="page-header"><h1>Suggested Matches</h1><p>AI-matched lost and found item pairs</p></div>
+      <div id="matches-grid" class="grid-2"></div>
+    </div>
+
+  </main>
+</div>
+
+<div class="modal-overlay" id="claim-modal">
+  <div class="modal">
+    <div class="modal-title">🔐 Claim This Item</div>
+    <div class="modal-sub">Verify your identity before proceeding to the quiz.</div>
+    <div class="form-field"><label>Student ID</label><input type="text" id="claim-sid" placeholder="e.g. STU2024001"/></div>
+    <div class="form-field"><label>Full Name</label><input type="text" id="claim-name" placeholder="Full name as per ID"/></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('claim-modal')">Cancel</button><button class="btn btn-red" onclick="startClaim()">Proceed to Quiz →</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="success-modal">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:12px">🎉</div>
+    <div class="modal-title">Report Submitted!</div>
+    <div class="modal-sub">You will be notified when a match is found or a claim is made.</div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin:14px 0;text-align:left;border:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.5px">Report ID</div>
+      <div style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--red);margin-top:2px" id="report-id-display">RPT-0000</div>
+    </div>
+    <button class="btn btn-red btn-block" onclick="closeModal('success-modal');showPage('page-my-reports')">View My Reports</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="item-modal">
+  <div class="modal">
+    <div id="item-modal-content"></div>
+    <div class="modal-footer" id="item-modal-footer"><button class="btn btn-outline" onclick="closeModal('item-modal')">Close</button></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
